@@ -8,13 +8,16 @@ class Player(pygame.sprite.Sprite):
         self.radius = 15 
         self.position = position 
     def move(self, new_x, new_y):
-        if 0 <= new_x < columns and 0 <= new_y < rows and (abs(new_x-self.position[0])==1 and abs(new_y-self.position[1])==0) or (abs(new_y-self.position[1])==1 and abs(new_x-self.position[0])==0):
+        if (0 <= new_x < columns and 0 <= new_y < rows) and ((abs(new_x-self.position[0]) == 1 and abs(new_y-self.position[1]) == 0) or (abs(new_y-self.position[1]) == 1 and abs(new_x-self.position[0]) == 0)):
+
             if players[0].position==players[1].position:
                 if players[0].position[0]==players[1].position[0]:
-                    self.position = (new_x, new_y+1)
+                    players[turn].move(new_x, new_y+1)
                 if players[0].position[1]==players[1].position[1]:
-                    self.position = (new_x+1, new_y)
+                    players[turn].move(new_x+1, new_y)
             self.position = (new_x, new_y)
+            return True
+        return False
     def draw(self, surface):
         x = self.position[0] * cell_size + cell_size // 2
         y = self.position[1] * cell_size + cell_size // 2
@@ -48,6 +51,8 @@ from pygame.locals import (
     QUIT,
     MOUSEBUTTONDOWN
 )
+def wall(oriation,wall_start,wall_end):
+    print("karen")
 running = True
 while running:
     screen.fill(BROWN)
@@ -65,24 +70,39 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         if event.type==pygame.MOUSEBUTTONDOWN:
-                x_mouse,y_mouse=pygame.mouse.get_pos()
-                y=y_mouse//cell_size
-                x=x_mouse//cell_size
-                players[turn].move(x,y)
+            x_mouse,y_mouse=pygame.mouse.get_pos()
+            if y_mouse%cell_size<5:
+                cell_y = y_mouse//cell_size
+                cell_x = x_mouse//cell_size
+                wall_type="H"
+                wall_start=(cell_y,cell_x)
+                wall_end=(cell_y+1,cell_x)
+                wall("H",wall_start,wall_end)
+            if x_mouse%cell_size<5:
+                cell_y = y_mouse//cell_size
+                cell_x = x_mouse//cell_size
+                wall_type="V"
+                wall_start=(cell_y,cell_x)
+                wall_end=(cell_y,cell_x+1)
+                wall("V",wall_start,wall_end)
+            y=y_mouse//cell_size
+            x=x_mouse//cell_size
+            if players[turn].move(x,y):
                 turn=1-turn
         if event.type == pygame.KEYDOWN:
             x,y=players[turn].position
             if event.key == pygame.K_w: 
-                players[turn].move(x,y-1)
-                turn=1-turn
+                if players[turn].move(x,y-1):
+                    turn=1-turn
             if event.key == pygame.K_s:
-                players[turn].move(x,y+1)
-                turn=1-turn
+                if players[turn].move(x,y+1):
+                    turn=1-turn
             if event.key == pygame.K_a:
-                players[turn].move(x-1,y)
-                turn=1-turn
+                if players[turn].move(x-1,y):
+                    turn=1-turn
             if event.key == pygame.K_d: 
-                players[turn].move(x+1,y)
-                turn=1-turn
+                if players[turn].move(x+1,y):
+                    turn=1-turn
 pygame.quit()
 sys.exit()
+
