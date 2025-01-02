@@ -146,7 +146,11 @@ while running:
                 wall("V",wall_start,wall_end)
             y=y_mouse//cell_size
             x=x_mouse//cell_size
-            if players[turn].move(x,y):
+            new_pos = (x,y)
+            if new_pos == (players[1-turn].position[0] , players[1-turn].position[1] ):
+                   jump(turn , new_pos ) 
+                   turn=1-turn
+            elif players[turn].move(x,y):
                 turn=1-turn
         if event.type == pygame.KEYDOWN:
             x,y=players[turn].position
