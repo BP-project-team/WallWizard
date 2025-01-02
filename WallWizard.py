@@ -1,16 +1,8 @@
-from pygame.locals import (
-    K_w,
-    K_d,
-    K_a,
-    K_s,
-    K_ESCAPE,
-    KEYDOWN,
-    QUIT,
-    MOUSEBUTTONDOWN
-)
 import pygame
 import sys
-
+from pygame.locals import (
+    K_w, K_d, K_a, K_s, K_ESCAPE, KEYDOWN, QUIT, MOUSEBUTTONDOWN
+)
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, color, position):
@@ -20,13 +12,15 @@ class Player(pygame.sprite.Sprite):
         self.position = position
 
     def move(self, new_x, new_y):
-        if (0 <= new_x < columns and 0 <= new_y < rows) and ((abs(new_x-self.position[0]) == 1 and abs(new_y-self.position[1]) == 0) or (abs(new_y-self.position[1]) == 1 and abs(new_x-self.position[0]) == 0)):
-
+        if (0 <= new_x < columns and 0 <= new_y < rows) and (
+            (abs(new_x-self.position[0]) == 1 and abs(new_y-self.position[1]) == 0) or 
+            (abs(new_y-self.position[1]) == 1 and abs(new_x-self.position[0]) == 0)):
+            
             if players[0].position == players[1].position:
                 if players[0].position[0] == players[1].position[0]:
-                    players[turn].move(new_x, new_y+1)
+                    players[turn].move(new_x, new_y + 1)
                 if players[0].position[1] == players[1].position[1]:
-                    players[turn].move(new_x+1, new_y)
+                    players[turn].move(new_x + 1, new_y)
             self.position = (new_x, new_y)
             return True
         return False
@@ -35,7 +29,6 @@ class Player(pygame.sprite.Sprite):
         x = self.position[0] * cell_size + cell_size // 2
         y = self.position[1] * cell_size + cell_size // 2
         pygame.draw.circle(surface, self.color, (x, y), self.radius)
-
 
 pygame.init()
 screen_width = 500
@@ -51,54 +44,59 @@ WHITE = (255, 255, 255)
 YELLOW = (255, 255, 0)
 
 turn = 0
-
 players = [
     Player(YELLOW, (4, 0)),
     Player(WHITE, (4, 8))
 ]
 
-# save data of walls
+# Save data of walls
 walls = []
 
-
 def wall(orientation, wall_start, wall_end):
-    # barrasi divaraye tekrari
-    if wall_start or wall_end in walls:
+    # Check if the wall already exists
+    if (wall_start, wall_end) in walls or (wall_end, wall_start) in walls:
         return False
-    for wall in walls:
-        if orientation == "V":
-            if wall == (wall_start, wall_end):
-                return False
-        if orientation == "H":
-            if wall == (wall_start, wall_end):
-                return False
 
-    # age tekrari nabood , add it.
+    # Add the wall
     walls.append((wall_start, wall_end))
 
-    # put wall
+    # Draw the wall
     if orientation == "H":
         origin_x = wall_start[1] * cell_size
         origin_y = wall_start[0] * cell_size
         pygame.draw.line(screen, WHITE, (origin_x, origin_y),
-                         (origin_x + cell_size, origin_y), 5)
+                         (origin_x, origin_y + 2 * cell_size), 5)
     elif orientation == "V":
         origin_x = wall_start[1] * cell_size
         origin_y = wall_start[0] * cell_size
         pygame.draw.line(screen, WHITE, (origin_x, origin_y),
-                         (origin_x, origin_y + cell_size), 5)
+                         (origin_x + 2 * cell_size, origin_y), 5)
     return True
-
 
 running = True
 while running:
     screen.fill(BROWN)
 
+    # Draw the grid
     for row in range(rows):
         for column in range(columns):
             pygame.draw.rect(
                 screen, BLUE, [column * cell_size, row * cell_size, cell_size, cell_size], 5)
 
+    # Draw the walls
+    for wall_start, wall_end in walls:
+        if wall_start[0] == wall_end[0]:  # Horizontal wall
+            origin_x = wall_start[1] * cell_size
+            origin_y = wall_start[0] * cell_size
+            pygame.draw.line(screen, WHITE, (origin_x, origin_y),
+                             (origin_x + cell_size, origin_y), 5)
+        elif wall_start[1] == wall_end[1]:  # Vertical wall
+            origin_x = wall_start[1] * cell_size
+            origin_y = wall_start[0] * cell_size
+            pygame.draw.line(screen, WHITE, (origin_x, origin_y),
+                             (origin_x, origin_y + cell_size), 5)
+
+    # Draw the players
     for player in players:
         player.draw(screen)
 
@@ -110,36 +108,37 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             x_mouse, y_mouse = pygame.mouse.get_pos()
             if y_mouse % cell_size < 5:
-                cell_y = y_mouse//cell_size
-                cell_x = x_mouse//cell_size
+                cell_y = y_mouse // cell_size
+                cell_x = x_mouse // cell_size
                 wall_type = "H"
                 wall_start = (cell_y, cell_x)
-                wall_end = (cell_y+1, cell_x)
+                wall_end = (cell_y, cell_x+1)
                 wall("H", wall_start, wall_end)
             if x_mouse % cell_size < 5:
-                cell_y = y_mouse//cell_size
-                cell_x = x_mouse//cell_size
+                cell_y = y_mouse // cell_size
+                cell_x = x_mouse // cell_size
                 wall_type = "V"
                 wall_start = (cell_y, cell_x)
-                wall_end = (cell_y, cell_x+1)
+                wall_end = (cell_y+1, cell_x)
                 wall("V", wall_start, wall_end)
-            y = y_mouse//cell_size
-            x = x_mouse//cell_size
+            y = y_mouse // cell_size
+            x = x_mouse // cell_size
             if players[turn].move(x, y):
-                turn = 1-turn
+                turn = 1 - turn
         if event.type == pygame.KEYDOWN:
             x, y = players[turn].position
             if event.key == pygame.K_w:
-                if players[turn].move(x, y-1):
-                    turn = 1-turn
+                if players[turn].move(x, y - 1):
+                    turn = 1 - turn
             if event.key == pygame.K_s:
-                if players[turn].move(x, y+1):
-                    turn = 1-turn
+                if players[turn].move(x, y + 1):
+                    turn = 1 - turn
             if event.key == pygame.K_a:
-                if players[turn].move(x-1, y):
-                    turn = 1-turn
+                if players[turn].move(x - 1, y):
+                    turn = 1 - turn
             if event.key == pygame.K_d:
-                if players[turn].move(x+1, y):
-                    turn = 1-turn
+                if players[turn].move(x + 1, y):
+                    turn = 1 - turn
+
 pygame.quit()
 sys.exit()
