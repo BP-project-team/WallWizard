@@ -1,48 +1,38 @@
-def wall_placement(wall_location1,wall_location2):
-    print("salam")
-def movement(kind_of_move):
-    print("chetoriayi")
-def movement_choice():
-    choice=input("To place a wall type(wall) or if you want to move, type(move): ")
-    if choice == "move":
-        try:
-            true=1
-            while true:
-                kind_of_move=input("type(w) to go forward,(d) to go right,(a) to go left and (s) to go bottom: ")
-                if kind_of_move in ["w","d","a","s"]:
-                    if kind_of_move=="w":
-                        true-=1
-                        movement("w")
-                    if kind_of_move=="d":
-                        true-=1
-                        movement("d")
-                    if kind_of_move=="a":
-                        true-=1
-                        movement("a")
-                    if kind_of_move=="s":
-                        true-=1
-                        movement("s")     
-                else:
-                    print("When you choose to move your choice are limited to go forward(w) or right(d) or left(a) or bottom(s).")
-        except:
-            print("When you choose to move your choice are limited to go forward(w) or right(d) or left(a) or bottom(s).")
-            return movement_choice()
-    if choice=="wall":
-        try:
-            true=1
-            while true:
-                wall_location1=map(int,input("Enter first coordinate in form of (x y) like 2 0:").split())
-                if not wall_location1.isdigit():
-                    print("Cordinates should be in form of (x, y) like 0 2.")
-                wall_location2=map(int,input("Enter second coordinate in form of (x y) like 2 1:").split())
-                if not wall_location2.isdigit():
-                    print("Cordinates should be in form of (x, y) like 0 2.")
-                else:
-                    true-=1
-                wall_placement(wall_location1,wall_location2)
-        except: 
-            print("Cordinates should be in form of (x, y) like 0 2.")
-            return movement_choice()turn = 0
+import pygame
+import sys
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self, color, position):
+        super(Player, self).__init__()
+        self.color = color
+        self.radius = 15 
+        self.position = position 
+    def move(self, new_x, new_y):
+        if 0 <= new_x < columns and 0 <= new_y < rows and (abs(new_x-self.position[0])==1 and abs(new_y-self.position[1])==0) or (abs(new_y-self.position[1])==1 and abs(new_x-self.position[0])==0):
+            if players[0].position==players[1].position:
+                if players[0].position[0]==players[1].position[0]:
+                    self.position = (new_x, new_y+1)
+                if players[0].position[1]==players[1].position[1]:
+                    self.position = (new_x+1, new_y)
+            self.position = (new_x, new_y)
+    def draw(self, surface):
+        x = self.position[0] * cell_size + cell_size // 2
+        y = self.position[1] * cell_size + cell_size // 2
+        pygame.draw.circle(surface, self.color, (x, y), self.radius)
+pygame.init()
+screen_width = 500
+screen_height = 500
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("WallWizard")
+rows, columns = 9, 9
+cell_size = screen_width // columns
+
+BROWN = (139, 69, 19)
+BLUE = (0, 0, 255)  
+WHITE = (255, 255, 255)
+YELLOW = (255, 255, 0)
+
+turn = 0
 
 players = [
     Player(YELLOW, (4, 0)),
