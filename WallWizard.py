@@ -3,17 +3,20 @@ import sys
 from pygame.locals import (
     K_w, K_d, K_a, K_s, K_ESCAPE, KEYDOWN, QUIT, MOUSEBUTTONDOWN
 )
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, color, position):
         super(Player, self).__init__()
         self.color = color
         self.radius = 15
         self.position = position
+
     def move(self, new_x, new_y):
         if (0 <= new_x < columns and 0 <= new_y < rows) and (
-            (abs(new_x-self.position[0]) == 1 and abs(new_y-self.position[1]) == 0) or 
-            (abs(new_y-self.position[1]) == 1 and abs(new_x-self.position[0]) == 0)):
-            
+            (abs(new_x-self.position[0]) == 1 and abs(new_y-self.position[1]) == 0) or
+                (abs(new_y-self.position[1]) == 1 and abs(new_x-self.position[0]) == 0)):
+
             if players[0].position == players[1].position:
                 if players[0].position[0] == players[1].position[0]:
                     players[turn].move(new_x, new_y + 1)
@@ -22,10 +25,13 @@ class Player(pygame.sprite.Sprite):
             self.position = (new_x, new_y)
             return True
         return False
+
     def draw(self, surface):
         x = self.position[0] * cell_size + cell_size // 2
         y = self.position[1] * cell_size + cell_size // 2
         pygame.draw.circle(surface, self.color, (x, y), self.radius)
+
+
 pygame.init()
 screen_width = 500
 screen_height = 500
@@ -43,10 +49,26 @@ players = [
     Player(WHITE, (4, 8))
 ]
 walls = []
+
+
 def wall(orientation, wall_start, wall_end):
     if (wall_start, wall_end) in walls or (wall_end, wall_start) in walls:
         return False
+
+# بررسی کردم دیوار ها همپوشانی نداشته باشند
+    for existing_wall_start, existing_wall_end in walls:
+        if orientation == "H" and existing_wall_start[0] == wall_start[0]:
+            if (wall_start[1] <= existing_wall_end[1] and wall_end[1] >= existing_wall_start[1]):
+                return False
+
+        if orientation == "V" and existing_wall_start[1] == wall_start[1]:
+            if (wall_start[0] <= existing_wall_end[0] and wall_end[0] >= existing_wall_start[0]):
+                return False
+
     walls.append((wall_start, wall_end))
+    return True
+
+
 running = True
 while running:
     screen.fill(BROWN)
@@ -107,4 +129,5 @@ while running:
                     turn = 1 - turn
 pygame.quit()
 sys.exit()
+
 
