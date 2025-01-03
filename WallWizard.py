@@ -80,7 +80,7 @@ while running:
                 wall_start = (cell_y, cell_x)
                 wall_end = (cell_y, cell_x+1)
                 wall("H", wall_start, wall_end)
-            if x_mouse % cell_size < 5:
+            elif x_mouse % cell_size < 5:
                 cell_y = y_mouse // cell_size
                 cell_x = x_mouse // cell_size
                 wall_type = "V"
@@ -106,4 +106,5 @@ while running:
                 if players[turn].move(x + 1, y):
                     turn = 1 - turn
 pygame.quit()
+sys.exit()
 sys.exit()
