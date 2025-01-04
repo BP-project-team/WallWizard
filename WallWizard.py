@@ -43,10 +43,15 @@ players = [
     Player(WHITE, (4, 8))
 ]
 walls = []
-def wall(orientation, wall_start, wall_end):
+centercells = []
+def wall(orientation, wall_start, wall_end,centercell):
     if (wall_start, wall_end) in walls or (wall_end, wall_start) in walls:
         return False
+    if centercell in centercells:
+        return False
+    centercells.append(centercell)
     walls.append((wall_start, wall_end))
+
 running = True
 while running:
     screen.fill(BROWN)
@@ -79,14 +84,21 @@ while running:
                 wall_type = "H"
                 wall_start = (cell_y, cell_x)
                 wall_end = (cell_y, cell_x+1)
-                wall("H", wall_start, wall_end)
-            elif x_mouse % cell_size < 5:
+                centercell = (cell_y, cell_x+ 1)
+                if not wall("H", wall_start, wall_end, centercell):
+                    print('n')
+                wall("H", wall_start, wall_end, centercell)
+            if x_mouse % cell_size < 5:
                 cell_y = y_mouse // cell_size
                 cell_x = x_mouse // cell_size
                 wall_type = "V"
                 wall_start = (cell_y, cell_x)
                 wall_end = (cell_y+1, cell_x)
-                wall("V", wall_start, wall_end)
+
+                centercell = (cell_y + 1, cell_x)
+                if not wall("V", wall_start, wall_end,centercell):
+                    print('n')
+                wall("V", wall_start, wall_end,centercell)
             y = y_mouse // cell_size
             x = x_mouse // cell_size
             if players[turn].move(x, y):
@@ -107,4 +119,4 @@ while running:
                     turn = 1 - turn
 pygame.quit()
 sys.exit()
-sys.exit()
+
