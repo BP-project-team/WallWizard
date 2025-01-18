@@ -1,7 +1,7 @@
 import pygame
 import sys
-from pygame.locals import (K_w, K_d, K_a, K_s, 
-     K_ESCAPE, KEYDOWN, QUIT, MOUSEBUTTONDOWN
+from pygame.locals import (
+    K_w, K_d, K_a, K_s, K_ESCAPE, KEYDOWN, QUIT, MOUSEBUTTONDOWN,K_e,K_q,K_z,K_c
 )
 class Player(pygame.sprite.Sprite):
     def __init__(self, color, position, walls_number):
@@ -42,6 +42,27 @@ players = [
 walls = []
 centercells = []
 wall_denied = []
+def orib(x, y, new_x, new_y):
+    opponent_x  , opponent_y= players[1-turn].position[0],players[1-turn].position[1]
+    dx , dy = abs(x-opponent_x), abs(y-opponent_y)
+    if not((dx == 1 and dy==0) or (dy==1 and dx==0)):
+        return False    
+    if abs(new_x - x == 1 and new_y - y == 1) or (new_x - x == -1 and new_y - y == 1):
+        if not jump(turn, x, y + 1):
+            return players[turn].move(new_x, new_y)
+
+    if (new_x - x == -1 and new_y - y == -1) or (new_x - x == 1 and new_y - y == -1):
+        if not jump(turn, x, y - 1):
+            return players[turn].move(new_x, new_y)
+
+    if (new_x - x == 1 and new_y - y == 1) or (new_x - x == 1 and new_y - y == -1):
+        if not jump(turn, x + 1, y):
+            return players[turn].move(new_x, new_y)
+
+    if (new_x - x == -1 and new_y - y == -1) or (new_x - x == -1 and new_y - y == 1):
+        if not jump(turn, x - 1, y):
+            return players[turn].move(new_x, new_y)
+
 def valid_move(position, new_x, new_y):
     if (0 <= new_x < columns and 0 <= new_y < rows):
         current_x = position[0] * cell_size + cell_size // 2
@@ -214,7 +235,19 @@ while running:
             if event.key == pygame.K_d:
                 if players[turn].move(x + 1, y):
                     turn = 1 - turn
-
+            if event.key == pygame.K_q:
+                if orib(x,y,x - 1, y-1):
+                    turn = 1 - turn
+            if event.key == pygame.K_e:
+                if orib(x,y,x + 1, y-1):
+                    turn = 1 - turn
+            if event.key == pygame.K_c:
+                if orib(x,y,x + 1, y+1):
+                    turn = 1 - turn
+            if event.key == pygame.K_z:
+                if orib(x,y,x -1, y+1):
+                    turn = 1 - turn
+        
 
 
 pygame.quit()
