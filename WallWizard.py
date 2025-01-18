@@ -42,6 +42,7 @@ players = [
 walls = []
 centercells = []
 wall_denied = []
+
 def orib(x, y, new_x, new_y):
     opponent_x  , opponent_y= players[1-turn].position[0],players[1-turn].position[1]
     dx , dy = abs(x-opponent_x), abs(y-opponent_y)
@@ -87,6 +88,7 @@ def valid_move(position, new_x, new_y):
                     return False
         return True
     return False
+
 def jump(player, new_x, new_y):
     x, y = players[player].position
     
@@ -111,6 +113,7 @@ def jump(player, new_x, new_y):
             players[player].position = (jump_x, jump_y)
             return True
     return False
+
 def is_wall(x,y,nx, ny, walls):
     if (0 <= nx < columns and 0 <= ny < rows):
         current_x = x * cell_size + cell_size // 2
@@ -152,6 +155,34 @@ def dfs_recursive(current, target_line, visited, wall_denied):
                 return True
     return False
 
+def valid_wall_placement(orientation, wall_start, wall_end, centercell):
+    walls.append((wall_start, wall_end, players[turn].color))
+
+    if wall_start[0] == wall_end[0]:
+            origin_x = wall_start[1] * cell_size
+            origin_y = wall_start[0] * cell_size
+            wall_denied.append((origin_x, origin_y, "H"))
+    elif wall_start[1] == wall_end[1]:
+            origin_x = wall_start[1] * cell_size
+            origin_y = wall_start[0] * cell_size
+            wall_denied.append((origin_x, origin_y, "V"))
+    visited_1 = {}
+    player_1_pos = players[0].position
+    player_2_pos = players[1].position
+
+    if not dfs_recursive(player_1_pos, 'bottom', visited_1, wall_denied):
+        walls.pop()
+        wall_denied.pop()
+        return False
+
+    visited_2 = {}
+
+    if not dfs_recursive(player_2_pos, 'top', visited_2, wall_denied):
+        walls.pop()
+        wall_denied.pop()
+        return False
+    
+    return True
 
 
 def wall(orientation, wall_start, wall_end, centercell):
@@ -195,6 +226,9 @@ def wall(orientation, wall_start, wall_end, centercell):
                 return False
 
     centercells.append(centercell)
+    if not valid_wall_placement(orientation, wall_start, wall_end, centercell):
+        return False
+    
     walls.append((wall_start, wall_end, players[turn].color))
     players[turn].walls_number -= 1
     print(f"Player {turn + 1} has {players[turn].walls_number} walls left.")
@@ -202,6 +236,7 @@ def wall(orientation, wall_start, wall_end, centercell):
 
 def within_bounds(x, y):
     return 0 <= x < 9 and 0 <= y < 9
+
 def winner():
     if players[0].position[1] == 8:
         print("player one has won, jingili jingili ghanarii!!")
@@ -263,6 +298,8 @@ while running:
                         turn = 1 - turn
                     else:
                         print(f"Player {1+turn},You can't place a wall in that location.")
+       
+       
         if event.type == pygame.KEYDOWN:
             x, y = players[turn].position
             if event.key == pygame.K_w:
@@ -294,4 +331,3 @@ while running:
 
 pygame.quit()
 sys.exit()
-
