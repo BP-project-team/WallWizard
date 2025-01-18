@@ -111,6 +111,48 @@ def jump(player, new_x, new_y):
             players[player].position = (jump_x, jump_y)
             return True
     return False
+def is_wall(x,y,nx, ny, walls):
+    if (0 <= nx < columns and 0 <= ny < rows):
+        current_x = x * cell_size + cell_size // 2
+        current_y = y * cell_size + cell_size // 2
+        target_x = nx * cell_size + cell_size // 2
+        target_y = ny * cell_size + cell_size // 2
+
+        for denied in walls:
+            x_wall, y_wall, orientation = denied
+
+            if orientation == "V":
+                if (current_y > y_wall and current_y < y_wall + 2 * cell_size) and (
+                    (current_x < x_wall and target_x >= x_wall) or
+                    (current_x > x_wall and target_x <= x_wall)
+                ):
+                    return False
+            elif orientation == "H":
+                if (current_x > x_wall and current_x < x_wall + 2 * cell_size) and (
+                    (current_y < y_wall and target_y >= y_wall) or
+                    (current_y > y_wall and target_y <= y_wall)
+                ):
+                    return False
+        return True
+    return False
+
+def dfs_recursive(current, target_line, visited, wall_denied):
+    x, y = current
+    if (target_line == 'top' and y == 0) or (target_line == 'bottom' and y == 8):
+        return True
+
+    visited[current] = True
+
+    for dx, dy in [(0, 1), (0,-1 ), (-1, 0), (1,0)]:
+        nx, ny = x + dx, y + dy
+        if (0 <= nx < columns and 0 <= ny < rows and 
+            (nx, ny) not in visited and 
+             is_wall(x, y, nx, ny, wall_denied)):
+            if dfs_recursive((nx, ny), target_line, visited, wall_denied):
+                return True
+    return False
+
+
 
 def wall(orientation, wall_start, wall_end, centercell):
     if (wall_start, wall_end) in walls or (wall_end, wall_start) in walls:
@@ -252,3 +294,4 @@ while running:
 
 pygame.quit()
 sys.exit()
+
