@@ -62,7 +62,7 @@ def game_screen(user_id, load_previous_game=False, game_state=None, opponent_id=
     BLUE = (135, 162, 219)
 
 
-    def orib(x, y, new_x, new_y):
+def orib(x, y, new_x, new_y):
         opponent_x, opponent_y = players[1 - turn].position
         dx = abs(x - opponent_x)
         dy = abs(y - opponent_y)
@@ -73,8 +73,29 @@ def game_screen(user_id, load_previous_game=False, game_state=None, opponent_id=
         if not jump(turn, new_x, new_y):
             if abs(new_x - x) == 1 and abs(new_y - y) == 1:
                 if valid_move((x, y), new_x, new_y):
-                    players[turn].position = (new_x, new_y)
-                    return True
+                    opp_x = opponent_x * cell_size + cell_size // 2
+                    opp_y = opponent_y * cell_size + cell_size // 2
+                      
+                    for denied in wall_denied:
+                        x_wall, y_wall, orientation = denied
+
+                        if orientation == "V":
+                            if (opp_y > y_wall and opp_y < y_wall + 2 * cell_size) and (
+                                (opp_x < x_wall and opp_x + cell_size >= x_wall) or
+                                (opp_x > x_wall and opp_x - cell_size <= x_wall)
+                            ):
+                               players[turn].position = (new_x, new_y)
+                               return True
+                        elif orientation == "H":
+                            if (opp_x > x_wall and opp_x < x_wall + 2 * cell_size) and (
+                                (opp_y < y_wall and opp_y + cell_size >= y_wall) or
+                                (opp_y > y_wall and opp_y - cell_size <= y_wall)
+                            ):
+                                players[turn].position = (new_x, new_y)
+                                return True
+                                      
+                   
+                   
         return False
 
     def valid_move(position, new_x, new_y):
