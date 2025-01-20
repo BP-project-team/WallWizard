@@ -15,7 +15,7 @@ def game_screen(user_id, load_previous_game=False, game_state=None, opponent_id=
                 self.position = position
                 self.walls_number = walls_number
             
-            def move(self, new_x, new_y):
+            def move(self, new_x, new_y, valid_move, players, turn, jump):
                 if valid_move(self.position, new_x, new_y):
                     if (new_x, new_y) == players[1 - turn].position:
                         return jump(turn, new_x, new_y)
@@ -62,41 +62,44 @@ def game_screen(user_id, load_previous_game=False, game_state=None, opponent_id=
     BLUE = (135, 162, 219)
 
 
-def orib(x, y, new_x, new_y):
-        opponent_x, opponent_y = players[1 - turn].position
-        dx = abs(x - opponent_x)
-        dy = abs(y - opponent_y)
-        
-        if not ((dx == 1 and dy == 0) or (dy == 1 and dx == 0)):
-            return False
-        
-        if not jump(turn, new_x, new_y):
-            if abs(new_x - x) == 1 and abs(new_y - y) == 1:
-                if valid_move((x, y), new_x, new_y):
-                    opp_x = opponent_x * cell_size + cell_size // 2
-                    opp_y = opponent_y * cell_size + cell_size // 2
-                      
-                    for denied in wall_denied:
-                        x_wall, y_wall, orientation = denied
-
-                        if orientation == "V":
-                            if (opp_y > y_wall and opp_y < y_wall + 2 * cell_size) and (
-                                (opp_x < x_wall and opp_x + cell_size >= x_wall) or
-                                (opp_x > x_wall and opp_x - cell_size <= x_wall)
-                            ):
-                               players[turn].position = (new_x, new_y)
-                               return True
-                        elif orientation == "H":
-                            if (opp_x > x_wall and opp_x < x_wall + 2 * cell_size) and (
-                                (opp_y < y_wall and opp_y + cell_size >= y_wall) or
-                                (opp_y > y_wall and opp_y - cell_size <= y_wall)
-                            ):
-                                players[turn].position = (new_x, new_y)
-                                return True
-                                      
-                   
-                   
+def orib(x, y, new_x, new_y, players, turn, cell_size, wall_denied, valid_move, jump):
+    opponent_x, opponent_y = players[1 - turn].position
+    dx = abs(x - opponent_x)
+    dy = abs(y - opponent_y)
+    
+    
+    if not ((dx == 1 and dy == 0) or (dy == 1 and dx == 0)):
         return False
+    
+    
+    if not jump(turn, new_x, new_y):
+        if abs(new_x - x) == 1 and abs(new_y - y) == 1:  
+            if valid_move((x, y), new_x, new_y):  
+                opp_x = opponent_x * cell_size + cell_size // 2
+                opp_y = opponent_y * cell_size + cell_size // 2
+                
+                for denied in wall_denied:
+                    x_wall, y_wall, orientation = denied
+
+                    
+                    if orientation == "V":
+                        if (opp_y > y_wall and opp_y < y_wall + 2 * cell_size) and (
+                            (opp_x < x_wall and opp_x + cell_size >= x_wall) or
+                            (opp_x > x_wall and opp_x - cell_size <= x_wall)
+                        ):
+                            players[turn].position = (new_x, new_y)
+                            return True
+                    
+                    
+                    elif orientation == "H":
+                        if (opp_x > x_wall and opp_x < x_wall + 2 * cell_size) and (
+                            (opp_y < y_wall and opp_y + cell_size >= y_wall) or
+                            (opp_y > y_wall and opp_y - cell_size <= y_wall)
+                        ):
+                            players[turn].position = (new_x, new_y)
+                            return True
+
+    return False
 
     def valid_move(position, new_x, new_y):
         if (0 <= new_x < columns and 0 <= new_y < rows):
